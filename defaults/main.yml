@@ -1,0 +1,12 @@
+---
+# defaults file for roles/customize_iso
+esxi_root_passw: "secretpassword"
+esxi_ip: "0.0.0.0"
+esxi_hostname: "hostname"
+esxi_gateway: "0.0.0.0"
+esxi_netmask: "0.0.0.0"
+iso_file: "esxi.iso"
+esxi_dns: "0.0.0.0"
+esxi_vlan: "0"
+install_or_upgrade: "INSTALL"
+portgroup_vlan_id: "0"

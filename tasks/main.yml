@@ -1,0 +1,70 @@
+---
+# tasks file for roles/customize_iso
+- name: ISO file is present
+  file:
+    path: "isos/{{ iso_file }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: file
+
+- name: Jinja2 template is present
+  file:
+    path: "roles/customize_iso/templates/KS_CUST_{{ install_or_upgrade }}.J2"
+    owner: root
+    group: root
+    mode: 0755
+    state: file
+
+
+- name: Create directory to store iso file
+  file:
+    path: "{{ cdrom_mount_dir  }}"
+    state: directory
+    owner: root
+
+- name: Verify that the directory is umounted
+  ansible.posix.mount:
+    path: "{{ cdrom_mount_dir }}"
+    state: unmounted
+
+- name: Create directory to store iso files content
+  file:
+    path: "isos/{{ cdrom_dir }}"
+    state: directory
+    owner: root
+
+- name: Mount iso file
+  ansible.posix.mount:
+    boot: false
+    src: "isos/{{ iso_file }}"
+    path: "{{ cdrom_mount_dir }}"
+    fstype: iso9660
+    opts: loop
+    state: mounted
+
+- name: copy all files
+  copy:
+   src: "{{ cdrom_mount_dir }}/"
+   dest: "isos/{{ cdrom_dir }}/"
+
+- name: Modify boot.cfg files
+  lineinfile:
+    path: "isos/{{ cdrom_dir }}/{{ item }}"
+    state: present
+    regexp: '^kernelopt'
+    line: kernelopt=runweasel ks=cdrom:/KS_CUST.CFG
+  loop:
+    - boot.cfg
+    - efi/boot/boot.cfg
+
+- name: Create custom KS file
+  template:
+    src: "roles/customize_iso/templates/KS_CUST_{{ install_or_upgrade }}.J2"
+    dest: "isos/{{ cdrom_dir }}/KS_CUST.CFG"
+    mode: 0644
+
+- name: Use isogenimage in shell
+  ansible.builtin.command:
+    chdir: "isos/"
+    cmd: "genisoimage -relaxed-filenames -J -R -o {{ esxi_hostname }}.iso -b isolinux.bin -c BOOT.CAT -no-emul-boot -boot-load-size 4 -boot-info-table -eltorito-alt-boot -e efiboot.img -no-emul-boot {{ cdrom_dir }}"

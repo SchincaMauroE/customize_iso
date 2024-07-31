@@ -1,0 +1,4 @@
+---
+# vars file for roles/customize_iso
+cdrom_mount_dir: "esxi_cdrom_mount"
+cdrom_dir: "esxi_cdrom"

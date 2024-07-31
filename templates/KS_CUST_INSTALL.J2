@@ -1,0 +1,56 @@
+### Custom ESXI kick start installation script
+
+### Author: Matias Gabriel Oviedo | Mauro Schinca
+### Date: 16.07.2024
+### Tested with: ESXi 7.0
+
+#### Stage 01 - Pre installation
+
+    ### Accept the VMware End User License Agreement
+    vmaccepteula
+
+    ### Set the root password for the DCUI and Tech Support mode
+    rootpw {{ esxi_root_passw }}
+
+    ### The install media (priority: local / remote / USB)
+    install --firstdisk=local --overwritevmfs
+
+    ### Set the network to static on the first network adapter
+    network --hostname={{ esxi_hostname }} --device=vmnic0 --bootproto=static --ip={{ esxi_ip }} --netmask={{ esxi_netmask }} --gateway={{ esxi_gateway }} --nameserver={{ esxi_dns }} --vlanid={{ esxi_vlan }}
+
+    ### Reboot ESXi host
+    reboot
+
+##### Stage 02 - Post installation:
+ 
+    ### Open busybox and launch commands
+    %firstboot --interpreter=busybox
+
+    ### Enter Maintenance mode
+    vim-cmd hostsvc/maintenance_mode_enter
+    
+    ### Start esxcli shell    
+    vim-cmd hostsvc/start_esx_shell
+    
+    ### Set DNS Suffix
+    esxcli network ip dns search add --domain=domain1
+    esxcli network ip dns search add --domain=domain2
+
+    ### Create portgroup with vlan for vms
+    {% for vlan_id in portgroup_vlan_ids %}
+    esxcli network vswitch standard portgroup add --portgroup-name=vlan{{ vlan_id }} --vswitch-name=vSwitch0
+    esxcli network vswitch standard portgroup set -p vlan{{ vlan_id }} --vlan-id {{ vlan_id }}
+    {% endfor %}
+
+    ### Disable IPv6
+    esxcli network ip set --ipv6-enabled=false
+
+    ### Enable SSH
+    #vim-cmd hostsvc/enable_ssh
+    #vim-cmd hostsvc/start_ssh
+
+    ### Exit Maintenance Mode
+    vim-cmd hostsvc/maintenance_mode_exit
+
+    ### Reboot to apply settings (disabling IPv6)
+    reboot

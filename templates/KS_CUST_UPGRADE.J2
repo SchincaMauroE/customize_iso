@@ -1,0 +1,19 @@
+### Custom ESXI kick start installation script
+
+### Author: Matias Gabriel Oviedo | Mauro Schinca
+### Date: 16.07.2024
+### Tested with: ESXi 7.0
+
+#### Stage 01 - Pre installation
+
+    ### Accept the VMware End User License Agreement
+    vmaccepteula
+
+    ### Set the root password for the DCUI and Tech Support mode
+    rootpw {{ esxi_root_passw }}
+
+    ### The install media (priority: local / remote / USB)
+    upgrade --firstdisk=local
+
+    ### Reboot ESXi host
+    reboot
