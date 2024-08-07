@@ -23,6 +23,7 @@ Role Variables
 * esxi_dns: DSN ip for the esxi host to use. Can be up to two ips.
 * esxi_vlan: VLAN id for the esxi host to use.
 * iso_file: ESXi iso file to use as base to modify.
+* domains: Domains to add to the ESXi network config.
 
 ### vars/main.yml
 

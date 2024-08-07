@@ -10,3 +10,4 @@ esxi_dns: "0.0.0.0"
 esxi_vlan: "0"
 install_or_upgrade: "INSTALL"
 portgroup_vlan_id: "0"
+domains: []

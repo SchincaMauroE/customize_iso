@@ -33,8 +33,9 @@
     vim-cmd hostsvc/start_esx_shell
     
     ### Set DNS Suffix
-    esxcli network ip dns search add --domain=domain1
-    esxcli network ip dns search add --domain=domain2
+    {% for domain in domains %}
+    esxcli network ip dns search add --domain={{ domain }}
+    {% endfor %}
 
     ### Create portgroup with vlan for vms
     {% for vlan_id in portgroup_vlan_ids %}
